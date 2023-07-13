@@ -6,7 +6,7 @@ With respect to the origianl module, in OpenPDAC the equations from the kinetic 
 
 In addition, a lagrangian library is included in the model (one-way coupling with the gas-solid mixture). 
 
-The module also implement an initialization of the hydrostatic pressure profile, which is needed for simulations on large domain. This allows you to use boundary conditions which are appropriate for inflow/outflow.
+The module also implement an initialization of the hydrostatic pressure profile, which is needed for simulations on large domains. This allows you to use boundary conditions which are appropriate for inflow/outflow.
 
 Six test cases are provided:
 
