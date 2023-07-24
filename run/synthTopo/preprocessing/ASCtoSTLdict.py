@@ -32,3 +32,9 @@ saveDicts_flag = True
 z_atm = 2000
 offset_mesh = 50.0
 delta_mesh = 100.0
+
+# Relative (with respect to xc,yc) coordinates of blockMesh 
+xmin = -500.0
+xmax = 500.0
+ymin = -500.0
+ymax = 500.0

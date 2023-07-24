@@ -197,13 +197,56 @@ def main(argv):
         print('Missing parameter in dict: offset_mesh (float>0)')
         sys.exit(1)
 
-    xmin = np.amin(xinit) + offset_mesh
-    xmax = np.amax(xinit) - offset_mesh
+    xmin0 = np.amin(xinit) + offset_mesh
+
+    try:
+
+        from ASCtoSTLdict import xmin
+
+    except ImportError:
+
+        xmin = xmin0
+
+    xmin = np.maximum(xmin,xmin0)
+
+
+    xmax0 = np.amax(xinit) - offset_mesh
+        
+    try:
+
+        from ASCtoSTLdict import xmax
+
+    except ImportError:
+
+        xmax = xmax0
+        
+    xmax = np.minimum(xmax,xmax0)    
 
     print('xmin,xmax', xmin, xmax)
 
-    ymin = np.amin(yinit) + offset_mesh
-    ymax = np.amax(yinit) - offset_mesh
+    ymin0 = np.amin(yinit) + offset_mesh
+
+    try:
+
+        from ASCtoSTLdict import ymin
+
+    except ImportError:
+
+        ymin = ymin0
+
+    ymin = np.maximum(ymin,ymin0)
+
+    ymax0 = np.amax(yinit) - offset_mesh
+
+    try:
+
+        from ASCtoSTLdict import ymax
+
+    except ImportError:
+
+        ymax = ymax0
+
+    ymax = np.minimum(ymax,ymax0)    
 
     print('ymin,ymax', ymin, ymax)
 
@@ -785,7 +828,7 @@ def main(argv):
         
         if dz_tri >= -0.001:
         
-            print('QUI',i,dz_tri)
+            # print('QUI',i,dz_tri)
         
             inner_tri_list.remove(i)
             outer_tri_list.append(i)
