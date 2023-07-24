@@ -806,6 +806,8 @@ def main(argv):
         if top_smooth_flag:
 
             z_new[i] = z_smooth[i]
+            x_new[i] = x_org[i]
+            y_new[i] = y_org[i]
             dz_total[i] = 0.0
 
             z_new_crater[i] = z_smooth[i]
@@ -814,6 +816,8 @@ def main(argv):
         else:
         
             z_new[i] = z_org[i]
+            x_new[i] = x_org[i]
+            y_new[i] = y_org[i]
             dz_total[i] = 0.0
 
             z_new_crater[i] = z_org[i]
