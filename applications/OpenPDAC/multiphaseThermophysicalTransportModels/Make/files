@@ -30,4 +30,5 @@ derivedFvPatchFields/alphatWallBoilingWallFunction/alphatWallBoilingWallFunction
 derivedFvPatchFields/uniformFixedMultiphaseHeatFlux/uniformFixedMultiphaseHeatFluxFvPatchScalarField.C
 derivedFvPatchFields/coupledMultiphaseTemperature/coupledMultiphaseTemperatureFvPatchScalarField.C
 
-LIB = $(FOAM_USER_LIBBIN)/libmultiphaseThermophysicalTransportModels
+
+LIB = $(FOAM_USER_LIBBIN)/libOpenPDACmultiphaseThermophysicalTransportModels
