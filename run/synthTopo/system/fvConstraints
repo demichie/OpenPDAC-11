@@ -20,4 +20,9 @@ limitp
 
     min        1e3;
 }
+
+#includeConstraint limitLowPressure(min=1e3)
+#includeConstraint limitTemperature(phase=gas, min=270, max=2000)
+#includeConstraint limitTemperature(phase=particles, min=270, max=2000)
+
 // ************************************************************************* //
