@@ -195,7 +195,7 @@ def main():
         mat1[s,0] = s
         if t_impact[s] != 0:
             
-            K[s] = 0.5*m[s]*(mat1[s,2]**2) 
+            K[s] = 0.5*m[s]*(matr[t_impact[s]-1,-1,s]**2) 
             
             mat1[s,1] = d[s]
             mat1[s,2] = rho[s]
@@ -210,7 +210,7 @@ def main():
 
     df = pd.DataFrame(mat1) 
     df[0] = df[0].astype(int)
-    df.to_csv("impacts.csv", header=C,index=False) 
+    df.to_csv("impacts.csv", header=C,index=False, float_format='%.3f') 
             
     x = np.array(position[:,0]) 
     y = np.array(position[:,1]) 
