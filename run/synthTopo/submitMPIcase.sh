@@ -48,8 +48,8 @@ cp ./constant/cloudProperties.run ./constant/cloudProperties
 #FOR PARALLEL RUN ON PC:
 decomposePar
 mpirun -np xx foamRun -parallel
-reconstructPar -newTimes -fields '(p U.gas alpha.particles)' -lagrangianFields '(U d)'
-foamToVTK -fields '()' -noInternal -noFaceZones -excludePatches '(atm top terrain)'
+reconstructPar -newTimes -fields '(p U.gas alpha.particles)' -lagrangianFields '(origId U d rho)'
+foamToVTK -fields '()' -noInternal -noFaceZones -excludePatches '(atm top terrain_in terrain_out)'
 
 #FOR SCALAR RUN:
 foamRun
