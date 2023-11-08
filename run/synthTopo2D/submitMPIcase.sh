@@ -6,7 +6,7 @@ foamCleanCase
 
 cd preprocessing
 python3 ASCtoSTL.py
-# python createSphere.py
+
 cd ..
 surfaceCheck constant/triSurface/surface_crater_closed.stl
 surfaceCheck constant/triSurface/surface_conduit_closed.stl
@@ -24,6 +24,7 @@ checkMesh -allTopology -allGeometry
 
 topoSet -dict topoSetDict-conduit
 
+cp ./system/controlDict.init ./system/controlDict
 cp ./system/fvSolution.init ./system/fvSolution
 cp ./constant/cloudProperties.init ./constant/cloudProperties
 
@@ -55,8 +56,8 @@ foamToVTK -fields '()' -noInternal -noFaceZones -excludePatches '(atm top terrai
 #FOR SCALAR RUN:
 foamRun
 
-
 python plotBallistics.py
+python plotProbes.py
 
 rm -rf VTK
 foamToVTK -fields "(alpha.particles)"
