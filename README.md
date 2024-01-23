@@ -16,7 +16,7 @@ In addition, a lagrangian library is included in the model (one-way coupling
 with the gas-solid mixture).
 
 The module also implements an initialization of the hydrostatic pressure profile,
-which is needed for simulations on large domains. This allows you to use
+which is needed for simulations on large domains. This allows the user to use
 boundary conditions which are appropriate for inflow/outflow.
 
 Six test cases are provided:
