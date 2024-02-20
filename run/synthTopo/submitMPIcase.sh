@@ -1,19 +1,24 @@
+# clear previous stl surfaces and output of previous runs
 rm -rf constant/triSurface/*
 foamCleanCase
 
+# create the STL surface from the ASC file
 cd preprocessing
 unzip synthDEM.zip
 python3 ASCtoSTL.py
 cd ..
 
+# check that the surfaces for initial conditions are closed
 surfaceCheck constant/triSurface/surface_crater_closed.stl
 surfaceCheck constant/triSurface/surface_conduit_closed.stl
 surfaceCheck constant/triSurface/surface_total_closed.stl
 
+# create the initial uniform grid 
 cp ./system/controlDict.init ./system/controlDict
 blockMesh 
 checkMesh -allTopology -allGeometry
 
+# refinement of the grid
 snappyHexMesh -overwrite
 checkMesh -allTopology -allGeometry
 changeDictionary
