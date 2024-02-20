@@ -1,6 +1,3 @@
-# module load openFOAM-10
-# source $FOAM_BASHRC
-
 rm -rf constant/triSurface/*
 foamCleanCase
 
