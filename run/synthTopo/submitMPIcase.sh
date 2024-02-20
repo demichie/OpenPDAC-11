@@ -25,9 +25,10 @@ checkMesh -allTopology -allGeometry
 # assign common names to boundary faces 
 changeDictionary
 
-# 
+# create zones based on stl files of closed surfaces (crater, conduit,...)
 topoSet -dict topoSetDict-conduit
 
+# 
 cp ./system/fvSolution.init ./system/fvSolution
 cp ./constant/cloudProperties.init ./constant/cloudProperties
 
