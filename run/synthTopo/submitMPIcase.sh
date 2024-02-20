@@ -21,8 +21,11 @@ checkMesh -allTopology -allGeometry
 # refinement of the grid
 snappyHexMesh -overwrite
 checkMesh -allTopology -allGeometry
+
+# assign common names to boundary faces 
 changeDictionary
 
+# 
 topoSet -dict topoSetDict-conduit
 
 cp ./system/fvSolution.init ./system/fvSolution
