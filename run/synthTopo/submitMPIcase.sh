@@ -61,12 +61,14 @@ cp ./constant/cloudProperties.run ./constant/cloudProperties
 decomposePar
 mpirun -np xx foamRun -parallel
 reconstructPar -newTimes -fields '(p U.gas alpha.particles)' -lagrangianFields '(origId U d rho)'
-foamToVTK -fields '()' -noInternal -noFaceZones -excludePatches '(atm top terrain_in terrain_out)'
 
 #FOR SCALAR RUN:
 foamRun
 
+# convert ballistic output to VTK
+foamToVTK -fields '()' -noInternal -noFaceZones -excludePatches '(atm top terrain_in terrain_out)'
 
+# process the VTK files for ballistics to create impact maps
 python plotBallistics.py
 
 rm -rf VTK
