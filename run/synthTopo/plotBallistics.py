@@ -1,7 +1,11 @@
 from matplotlib.colors import BoundaryNorm
 from matplotlib.colors import LightSource
-from preprocessing.ASCtoSTLdict import domain_size_x
-from preprocessing.ASCtoSTLdict import domain_size_y
+try:
+    from preprocessing.ASCtoSTLdict import domain_size_x
+    from preprocessing.ASCtoSTLdict import domain_size_y
+except:
+    print('') 
+    
 from preprocessing.ASCtoSTLdict import xc
 from preprocessing.ASCtoSTLdict import yc
 from preprocessing.ASCtoSTLdict import DEM_file
@@ -41,22 +45,35 @@ def readerVTK(filename):
     reader.ReadAllTensorsOn()
     reader.ReadAllFieldsOn()
     reader.Update()
+    
+    data = reader.GetOutput()
+    
+    npoints = data.GetNumberOfPoints()
+    print('npoints',npoints)
+    point = data.GetPoint(0)
+    d = data.GetPointData()
+    
+    position_array = data.GetPoint
+    U_array = d.GetArray("U")  
+    d_array = d.GetArray("d")  
+    rho_array = d.GetArray("rho")  
 
-    mydata = dsa.WrapDataObject(reader.GetOutput())
+    origId_array = d.GetArray("origId")  
 
-    origId = np.array(mydata.PointData['origId']).astype(int)
-    rho = mydata.PointData['rho']
-    d = mydata.PointData['d']
-    U = mydata.PointData['U']
+    position = np.zeros((npoints,3))
+    U = np.zeros((npoints,3))
+    d = np.zeros(npoints)
+    rho = np.zeros(npoints)
+    origId = np.zeros(npoints).astype(int) 
+ 
+    for n in range(npoints):
 
-    Point_coordinates = reader.GetOutput().GetPoints().GetData()
-    position = numpy_support.vtk_to_numpy(Point_coordinates)
-
-    # print(d)
-    # print(U)
-    # print(position)
-    # print(rho)
-    # print(origId)
+        position[n,:] = data.GetPoint(n)
+        U[n,:] = U_array.GetTuple(n)
+        d[n] = np.array(d_array.GetTuple(n))
+        rho[n] = np.array(rho_array.GetTuple(n))
+        origId[n] = np.array(origId_array.GetTuple(n))
+         
 
     return origId, d, U, position, rho
 
@@ -167,6 +184,12 @@ def main():
 
     VTKexists = os.path.exists(check_dir)
 
+    foamCommand = "foamToVTK -fields '()' -noInternal " + \
+         "-noFaceZones -excludePatches '(atm top terrain_in terrain_out)'"
+         
+    print(foamCommand) 
+        
+
     if VTKexists:
 
         print("")
@@ -174,8 +197,6 @@ def main():
 
     else:
 
-        foamCommand = "foamToVTK -fields '()' -noInternal" + \
-         "-noFaceZones -excludePatches '(atm top terrain_in terrain_out)"
         os.system(foamCommand)
 
     print('DEM_file', DEM_file)
