@@ -20,8 +20,6 @@ phases (particles1 particles2 air);
 
 continuousPhase air;
 
-referencePhase air;
-
 particles1
 {
     type          purePhaseModel;
