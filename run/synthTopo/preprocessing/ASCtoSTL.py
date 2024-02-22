@@ -62,7 +62,7 @@ def saveDicts(xmin, xmax, ymin, ymax, Zinit, offset_mesh, path):
     # Write blockMeshDict dictionary by concatenating the header with the other
     # parts. Save it as path/system/blockMeshDict
     path_system = path + 'system/'
-    command = "cat templates/blockMesh.start blockMesh.mod" + \
+    command = "cat templates/blockMesh.start blockMesh.mod " + \
         "templates/blockMesh.end > " + \
         path_system + "blockMeshDict"
 
