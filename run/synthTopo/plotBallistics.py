@@ -174,8 +174,8 @@ def main():
 
     else:
 
-        foamCommand = "foamToVTK -fields '()' -noInternal" + \
-         "-noFaceZones -excludePatches '(atm top terrain_in terrain_out)"
+        foamCommand = "foamToVTK -fields '()' -noInternal " + \
+         "-noFaceZones -excludePatches '(atm top terrain_in terrain_out)'"
         os.system(foamCommand)
 
     print('DEM_file', DEM_file)
