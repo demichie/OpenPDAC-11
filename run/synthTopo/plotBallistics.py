@@ -19,6 +19,8 @@ sys.path.insert(0, './preprocessing')
 toll = 1.0
 step_dens = 50.0
 
+map_size = 500.0
+
 
 # Print iterations progress
 def printProgressBar(iteration,
@@ -343,6 +345,13 @@ def main():
     y = np.array(position[:, 1])
     diam = np.array(d)
 
+    xPmin = np.amin(x) + xc
+    xPmax = np.amax(x) + xc
+    yPmin = np.amin(y) + yc
+    yPmax = np.amax(y) + yc
+    DeltaxP = xPmax - xPmin
+    DeltayP = yPmax - yPmin
+
     xmin = np.amin(Xinit) - 0.5 * cell
     xmax = np.amax(Xinit) + 0.5 * cell
 
@@ -427,6 +436,16 @@ def main():
         ax.set_xlim(xmin, xmax)
         ax.set_ylim(ymin, ymax)
 
+        if 'map_size' in globals():
+
+            ax.set_xlim(xc - map_size, xc + map_size)
+            ax.set_ylim(yc - map_size, yc + map_size)
+
+        else:
+
+            ax.set_xlim(xPmin - 1.0 * DeltaxP, xPmax + 1.0 * DeltaxP)
+            ax.set_ylim(yPmin - 1.0 * DeltayP, yPmax + 1.0 * DeltayP)
+
         clb = plt.colorbar(p1)
 
         label_str = 'Log of % ballistic'
@@ -435,7 +454,7 @@ def main():
         if i < len(diams):
 
             string = '_d' + str(i) + '_'
-            title = 'Diameter = ' + str(diams[i]) + 'm'
+            title = 'Diameter = ' + f'{diams[i]:.2e}' + 'm'
 
         else:
 
@@ -447,6 +466,7 @@ def main():
         png_file = current_dir_name + string + 'ballistic.png'
 
         plt.savefig(png_file, dpi=200)
+        plt.show()
         plt.close(fig)
 
         nd = -9999
@@ -467,8 +487,6 @@ def main():
                    header=header,
                    fmt='%1.5f',
                    comments='')
-
-        # plt.show()
 
 
 if __name__ == '__main__':
