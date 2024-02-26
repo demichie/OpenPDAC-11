@@ -56,7 +56,7 @@ def fmt(x, pos):
     return r'${} \times 10^{{{}}}$'.format(a, b)
 
 
-def readerVTK(filename):
+def readerVTK(filename, dispersed_phase):
 
     reader = vtk.vtkDataSetReader()
 
@@ -73,7 +73,9 @@ def readerVTK(filename):
 
     d = data.GetPointData()
 
-    alpha_array = d.GetArray("alpha.particles")
+    phaseName = "alpha." + dispersed_phase
+
+    alpha_array = d.GetArray(phaseName)
 
     position = np.zeros((npoints, 3))
     alpha_particles = np.zeros(npoints)
@@ -264,7 +266,7 @@ def main():
 
     full_filename = working_dir + '/' + sorted_files[-1]
 
-    position, alpha_max = readerVTK(full_filename)
+    position, alpha_max = readerVTK(full_filename, dispersedPhases[0])
 
     points = position[:, 0:2]
 
@@ -318,6 +320,8 @@ def main():
     x[:] = xx[0, :]
     y[:] = yy[:, 0]
 
+    zz = np.zeros_like(xx)
+
     for i, filename in enumerate(sorted_files[:]):
 
         printProgressBar(i, len(sorted_files) - 1)
@@ -325,8 +329,12 @@ def main():
         time[i] = dt * i
         full_filename = working_dir + '/' + filename
         # print(filename)
-        position, alpha_particles = readerVTK(full_filename)
-        zz = griddata(points, alpha_particles, (xx, yy), method='nearest')
+
+        for dispersed_phase in dispersedPhases:
+
+            position, alpha_particles = readerVTK(full_filename,
+                                                  dispersed_phase)
+            zz += griddata(points, alpha_particles, (xx, yy), method='nearest')
 
         alphaP[i, :, :] = zz
 
