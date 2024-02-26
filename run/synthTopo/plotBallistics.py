@@ -1,25 +1,16 @@
-from matplotlib.colors import BoundaryNorm
+# from matplotlib.colors import BoundaryNorm
 from matplotlib.colors import LightSource
-try:
-    from preprocessing.ASCtoSTLdict import domain_size_x
-    from preprocessing.ASCtoSTLdict import domain_size_y
-except:
-    print('') 
-    
+
 from preprocessing.ASCtoSTLdict import xc
 from preprocessing.ASCtoSTLdict import yc
 from preprocessing.ASCtoSTLdict import DEM_file
 
-
 import vtk
 import os
 import sys
-from vtk.numpy_interface import dataset_adapter as dsa
-from vtk.util import numpy_support
 import numpy as np
 from numpy import linalg as LA
 import matplotlib.pyplot as plt
-from scipy.stats import gaussian_kde
 from linecache import getline
 import pandas as pd
 
@@ -27,6 +18,37 @@ sys.path.insert(0, './preprocessing')
 
 toll = 1.0
 step_dens = 50.0
+
+
+# Print iterations progress
+def printProgressBar(iteration,
+                     total,
+                     prefix='',
+                     suffix='',
+                     decimals=1,
+                     bar_length=20):
+    """
+    Call in a loop to create terminal progress bar
+
+    @params:
+        iteration   - Required  : current iteration (Int)
+        total       - Required  : total iterations (Int)
+        prefix      - Optional  : prefix string (Str)
+        suffix      - Optional  : suffix string (Str)
+        decimals    - Optional  : number of decimals in percent complete (Int)
+        bar_length  - Optional  : character length of bar (Int)
+    """
+    str_format = "{0:." + str(decimals) + "f}"
+    percents = str_format.format(100 * (iteration / float(total)))
+    filled_length = int(round(bar_length * iteration / float(total)))
+    bar = '█' * filled_length + '-' * (bar_length - filled_length)
+
+    sys.stdout.write('\r%s |%s| %s%s %s' %
+                     (prefix, bar, percents, '%', suffix)),
+
+    if iteration == total:
+        sys.stdout.write('\n')
+    sys.stdout.flush()
 
 
 def fmt(x, pos):
@@ -45,35 +67,31 @@ def readerVTK(filename):
     reader.ReadAllTensorsOn()
     reader.ReadAllFieldsOn()
     reader.Update()
-    
+
     data = reader.GetOutput()
-    
+
     npoints = data.GetNumberOfPoints()
-    print('npoints',npoints)
-    point = data.GetPoint(0)
     d = data.GetPointData()
-    
-    position_array = data.GetPoint
-    U_array = d.GetArray("U")  
-    d_array = d.GetArray("d")  
-    rho_array = d.GetArray("rho")  
 
-    origId_array = d.GetArray("origId")  
+    U_array = d.GetArray("U")
+    d_array = d.GetArray("d")
+    rho_array = d.GetArray("rho")
 
-    position = np.zeros((npoints,3))
-    U = np.zeros((npoints,3))
+    origId_array = d.GetArray("origId")
+
+    position = np.zeros((npoints, 3))
+    U = np.zeros((npoints, 3))
     d = np.zeros(npoints)
     rho = np.zeros(npoints)
-    origId = np.zeros(npoints).astype(int) 
- 
+    origId = np.zeros(npoints).astype(int)
+
     for n in range(npoints):
 
-        position[n,:] = data.GetPoint(n)
-        U[n,:] = U_array.GetTuple(n)
+        position[n, :] = data.GetPoint(n)
+        U[n, :] = U_array.GetTuple(n)
         d[n] = np.array(d_array.GetTuple(n))
         rho[n] = np.array(rho_array.GetTuple(n))
         origId[n] = np.array(origId_array.GetTuple(n))
-         
 
     return origId, d, U, position, rho
 
@@ -185,10 +203,9 @@ def main():
     VTKexists = os.path.exists(check_dir)
 
     foamCommand = "foamToVTK -fields '()' -noInternal " + \
-         "-noFaceZones -excludePatches '(atm top terrain_in terrain_out)'"
-         
-    print(foamCommand) 
-        
+        "-noFaceZones -excludePatches '(atm top terrain_in terrain_out)'"
+
+    print(foamCommand)
 
     if VTKexists:
 
@@ -231,8 +248,6 @@ def main():
     nballistics = d.shape[0]
     n_times = n_files
     print('nballistics', nballistics)
-    A = np.zeros((nballistics, 3, n_times))
-    B = np.zeros((nballistics, 3, n_times))
 
     # matr is an array with these values:
     # 1st index: time
@@ -244,10 +259,10 @@ def main():
 
     for i, filename in enumerate(sorted_files[:]):
 
+        printProgressBar(i, len(sorted_files) - 1)
+
         full_filename = working_dir + '/' + filename
-        print(filename)
         origId, d, U, position, rho = readerVTK(full_filename)
-        print('n ', d.shape[0])
 
         sorter = np.argsort(origId)
         subset = sorter[np.searchsorted(origId, origIdLast, sorter=sorter)]
@@ -272,7 +287,6 @@ def main():
             if (matr[it, -1, ib] < toll and matr[it - 1, -2, ib] < 0):
                 t_impact[ib] = int(it)
                 time_impact[ib] = sorted_times[it]
-                print(ib, it, time_impact[ib])
                 break
 
     # Calculate mean and maximum velocities along particle trajectory
@@ -333,10 +347,6 @@ def main():
     y = np.array(position[:, 1])
     diam = np.array(d)
 
-    xy = np.vstack([x, y])
-    kde = gaussian_kde(xy, bw_method=1.0)
-    z = gaussian_kde(xy)(xy)
-
     xmin = np.amin(Xinit) - 0.5 * cell
     xmax = np.amax(Xinit) + 0.5 * cell
 
@@ -378,12 +388,12 @@ def main():
 
         fig, ax = plt.subplots()
 
-        im = ax.imshow(ls.hillshade(np.flipud(Zinit),
-                                    vert_exag=1.0,
-                                    dx=cell,
-                                    dy=cell),
-                       cmap='gray',
-                       extent=extent)
+        ax.imshow(ls.hillshade(np.flipud(Zinit),
+                               vert_exag=1.0,
+                               dx=cell,
+                               dy=cell),
+                  cmap='gray',
+                  extent=extent)
 
         ax.set_aspect('equal', 'box')
 
@@ -392,35 +402,23 @@ def main():
         print('sum_zz', sum_zz)
         zz = zz / np.sum(zz) * 100.0
         zz = np.log10(zz)
-
-        min_arr = np.amin(zz)
-        max_arr = np.amin(zz)
-
         zz_max = np.amax(zz)
+
         zz_linspace = np.linspace(0, zz_max, num=11)
         ticks = []
         for val in zz_linspace:
             ticks.append(str(val))
 
-        if 'domain_size_x' in locals():
+        # im_ratio = (ymax - ymin) / (xmax - xmin)
 
-            # values for blockMeshDict
-            xmin = np.maximum(xmin, xc - 0.5 * domain_size_x)
-            xmax = np.minimum(xmax, xc + 0.5 * domain_size_x)
-
-        if 'domain_size_y' in locals():
-
-            # values for blockMeshDict
-            ymin = np.maximum(ymin, yc - 0.5 * domain_size_y)
-            ymax = np.minimum(ymax, yc + 0.5 * domain_size_y)
-
-        im_ratio = (ymax - ymin) / (xmax - xmin)
-
-        levels = np.linspace(min_arr, max_arr, 11)
         label_str = 'Probabilty [0;1]'
 
         cmap = plt.get_cmap('terrain_r')
-        norm = BoundaryNorm(levels, ncolors=cmap.N, clip=True)
+
+        # min_arr = np.amin(zz)
+        # max_arr = np.amin(zz)
+        # levels = np.linspace(min_arr, max_arr, 11)
+        # norm = BoundaryNorm(levels, ncolors=cmap.N, clip=True)
 
         # ax.scatter(x+xc,y+yc,c=z,s=3,alpha=0.1,edgecolors='none')
 
