@@ -73,7 +73,7 @@ python plotFieldsMap.py
 rm -rf VTK
 
 # reconstruct and convert ballistic output to VTK
-reconstructPar -fields '(none)' -lagrangianFields '(origId U d rho)'
+reconstructPar -withZero -fields '(none)' -lagrangianFields '(origId U d rho)'
 foamToVTK -fields '()' -noInternal -noFaceZones -excludePatches '(atm top terrain_in terrain_out)'
 python plotBallistics.py
 
