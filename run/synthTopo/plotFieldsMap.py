@@ -3,6 +3,7 @@ from matplotlib.colors import LightSource
 
 from preprocessing.ASCtoSTLdict import DEM_file
 
+import re
 import vtk
 import os
 import sys
@@ -83,6 +84,40 @@ def readerVTK(filename):
         alpha_particles[n] = np.array(alpha_array.GetTuple(n))
 
     return position, alpha_particles
+
+
+def readPhaseProperties():
+
+    print('Reading file: phaseProperties')
+
+    word1 = 'phases'
+    word2 = 'continuousPhase'
+
+    with open('./constant/phaseProperties', 'r') as fp:
+        # read all lines using readline()
+        lines = fp.readlines()
+        for row in lines:
+            # check if string present on a current line
+
+            line = row.lstrip()
+            find1 = row.find(word1)
+            if find1 != -1:
+
+                if line.split()[0] == word1:
+                    print(word1 + ' exists in file')
+                    matches = re.findall(r'\((.*?)\)', line)
+                    phases = matches[0].split()
+                    print(word1 + ' = ', phases)
+
+            find2 = row.find(word2)
+            if find2 != -1:
+                print(word2 + ' exists in file')
+                continuousPhase = (row.split()[-1].replace(';', '')).strip()
+                print(word2 + ' = ', continuousPhase)
+
+    dispersedPhases = [phase for phase in phases if phase != continuousPhase]
+
+    return dispersedPhases
 
 
 def readControlDict():
@@ -182,7 +217,11 @@ def main():
 
     dt = readControlDict()
 
-    print('dt= ', dt)
+    print('dt = ', dt)
+
+    dispersedPhases = readPhaseProperties()
+
+    print('dispersedPhases = ', dispersedPhases)
 
     current_dir = os.getcwd()
     current_dir_name = current_dir.split('/')[-1]
