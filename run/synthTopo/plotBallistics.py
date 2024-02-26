@@ -431,7 +431,7 @@ def main():
                        cmap=cmap,
                        interpolation='nearest',
                        extent=extent_density,
-                       alpha=0.65)
+                       alpha=0.6)
 
         ax.set_xlim(xmin, xmax)
         ax.set_ylim(ymin, ymax)
@@ -445,6 +445,8 @@ def main():
 
             ax.set_xlim(xPmin - 1.0 * DeltaxP, xPmax + 1.0 * DeltaxP)
             ax.set_ylim(yPmin - 1.0 * DeltayP, yPmax + 1.0 * DeltayP)
+
+        ax.tick_params(axis='both', which='major', labelsize=8)
 
         clb = plt.colorbar(p1)
 

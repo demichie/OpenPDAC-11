@@ -2,6 +2,8 @@ from matplotlib.colors import BoundaryNorm
 from matplotlib.colors import LightSource
 
 from preprocessing.ASCtoSTLdict import DEM_file
+from preprocessing.ASCtoSTLdict import xc
+from preprocessing.ASCtoSTLdict import yc
 
 import re
 import vtk
@@ -16,7 +18,9 @@ import netCDF4
 
 sys.path.insert(0, './preprocessing')
 
-cell_size_map = 10.0
+cell_size_map = 25.0
+
+map_size = 500.0
 
 
 # Print iterations progress
@@ -268,6 +272,9 @@ def main():
 
     position, alpha_max = readerVTK(full_filename, dispersedPhases[0])
 
+    position[:, 0] += xc
+    position[:, 1] += yc
+
     points = position[:, 0:2]
 
     x_map_min = np.amin(position[:, 0])
@@ -332,8 +339,7 @@ def main():
 
         for dispersed_phase in dispersedPhases:
 
-            position, alpha_particles = readerVTK(full_filename,
-                                                  dispersed_phase)
+            alpha_particles = readerVTK(full_filename,dispersed_phase)[1]
             zz += griddata(points, alpha_particles, (xx, yy), method='nearest')
 
         alphaP[i, :, :] = zz
@@ -384,8 +390,10 @@ def main():
                    extent=extent_map,
                    alpha=0.5)
 
-    ax.set_xlim(xmin, xmax)
-    ax.set_ylim(ymin, ymax)
+    ax.set_xlim(xc - map_size, xc + map_size)
+    ax.set_ylim(yc - map_size, yc + map_size)
+
+    ax.tick_params(axis='both', which='major', labelsize=8)
 
     clb = plt.colorbar(p1)
 
