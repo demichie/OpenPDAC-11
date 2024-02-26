@@ -239,9 +239,8 @@ def main():
 
     print('file', full_filename)
 
-    origIdLast, d, U, position, rho = readerVTK(full_filename)
-
-    print('origIdLast', origIdLast)
+    # get Ids and diameters of ballistic from last output
+    origIdLast, d = readerVTK(full_filename)[0:2]
 
     diams = np.unique(d)
 
@@ -249,12 +248,10 @@ def main():
     n_times = n_files
     print('nballistics', nballistics)
 
-    # matr is an array with these values:
-    # 1st index: time
-    # 2nd index column 0,1,2: ballistic coordiantes
-    # 2nd index column 3,4,5: ballistic velocity components
-    # 2nd index column 6: ballistic velocity magnitude
-    # 3rd index: ballistic Id
+    # matr is an array with one row for each timestep:
+    # column 0,1,2: ballistic coordiantes
+    # column 3,4,5: ballistic velocity components
+    # column 6: ballistic velocity magnitude
     matr = np.zeros((n_times, 7, nballistics))
 
     for i, filename in enumerate(sorted_files[:]):
@@ -264,11 +261,10 @@ def main():
         full_filename = working_dir + '/' + filename
         origId, d, U, position, rho = readerVTK(full_filename)
 
+        # sort Ids to match those from last output
         sorter = np.argsort(origId)
         subset = sorter[np.searchsorted(origId, origIdLast, sorter=sorter)]
 
-        # A[origId,:,i] = U
-        # B[origId,:,i] = position
         for k in range(nballistics):
             matr[i, 0:3, k] = position[subset[k], :]
             matr[i, 3:6, k] = U[subset[k], :]
