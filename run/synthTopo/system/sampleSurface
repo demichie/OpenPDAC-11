@@ -1,0 +1,35 @@
+/*--------------------------------*- C++ -*----------------------------------*\
+  =========                 |
+  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
+   \\    /   O peration     | Website:  https://openfoam.org
+    \\  /    A nd           | Version:  11
+     \\/     M anipulation  |
+\*---------------------------------------------------------------------------*/
+
+cutPlane
+{
+    type            surfaces;
+    libs            ("libsampling.so");
+    writeControl    writeTime;
+
+    surfaceFormat   vtk;
+    fields          (p U rho);
+
+    interpolationScheme cellPoint;
+
+    surfaces
+    (
+        triSurfaceSampling
+        {
+            // Sampling on triSurface
+            type        triSurfaceMesh;
+            surface     surface_sample.stl;
+            source      boundaryFaces;  // sample cells or boundaryFaces
+            interpolate true;
+        }
+    );
+
+}
+
+
+// ************************************************************************* //
