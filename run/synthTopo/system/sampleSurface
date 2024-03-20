@@ -24,7 +24,7 @@ cutPlane
             // Sampling on triSurface
             type        triSurfaceMesh;
             surface     surface_sample.stl;
-            source      boundaryFaces;  // sample cells or boundaryFaces
+            source      cells;  // sample cells or boundaryFaces
             interpolate true;
         }
     );
