@@ -10,6 +10,17 @@ import os.path
 import pandas as pd
 
 
+def replace_xyz_line(input_file, output_file, points):
+    with open(input_file, 'r') as infile, open(output_file, 'w') as outfile:
+        for line in infile:
+            if 'XYZ' in line:
+                for point in points:
+                    outfile.write(
+                        f"        ({point[0]} {point[1]} {point[2]})\n")
+            else:
+                outfile.write(line)
+
+
 def saveDicts(xmin, xmax, ymin, ymax, Zinit, offset_mesh, path):
 
     try:
@@ -349,6 +360,28 @@ def main(argv):
 
     # interpolate with values from original fine grid
     f = interpolate.interp2d(xinit, yinit, Zinit, kind='linear')
+
+    try:
+
+        from ASCtoSTLdict import xProbes
+        from ASCtoSTLdict import yProbes
+        from ASCtoSTLdict import dzProbes
+
+        zProbes = []
+        for x, y, dz in zip(xProbes, yProbes, dzProbes):
+
+            zProbes.append(f(x, y)[0] + dz)
+
+        probeTemplate = './templates/probes.template'
+        probeSystem = '../system/probes'
+
+        points = list(zip(xProbes, yProbes, zProbes))
+
+        replace_xyz_line(probeTemplate, probeSystem, points)
+
+    except ImportError:
+
+        print('No probes defined in input file')
 
     try:
 
