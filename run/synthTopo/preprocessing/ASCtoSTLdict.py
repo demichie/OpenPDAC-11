@@ -38,3 +38,11 @@ xmin = -500.0
 xmax = 500.0
 ymin = -500.0
 ymax = 500.0
+
+# create a surface at fixed elevation used to sample field values
+z_sample = 10.0
+
+# create probe points at elevation dz with respect to topography
+xProbes = [20]
+yProbes = [20]
+dzProbes = [1]
