@@ -54,7 +54,7 @@ maxDeltaT       1;
 
 functions
 {
-    #includeFunc  probes
+    #include  "probes"
 }
 
 

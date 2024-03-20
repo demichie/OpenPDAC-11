@@ -1,25 +1,33 @@
 /*--------------------------------*- C++ -*----------------------------------*\
-  =========                 |
-  \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox
-   \\    /   O peration     | Website:  https://openfoam.org
-    \\  /    A nd           | Version:  11
-     \\/     M anipulation  |
--------------------------------------------------------------------------------
-Description
-    Writes out values of fields from cells nearest to specified locations.
-
+| =========                 |                                                 |
+| \\      /  F ield         | OpenFOAM: The Open Source CFD Toolbox           |
+|  \\    /   O peration     | Version:  dev                                   |
+|   \\  /    A nd           | Web:      www.OpenFOAM.org                      |
+|    \\/     M anipulation  |                                                 |
 \*---------------------------------------------------------------------------*/
 
-points  
-(
-    (0.0 0.15 100.0)
-    (0.0 0.15 150.0)
-    (0.0 0.15 200.0)
-    (0.0 0.15 250.0)
-);
+probes
+{
+    type          probes;
+    libs          ( "libsampling.so" );
+    writeControl  adjustableRunTime;
+    writeInterval 0.01;
+    
 
-fields  (p alpha.particles);
-
-#includeEtc "caseDicts/postProcessing/probes/probes.cfg"
-
+    probeLocations
+    (
+        (0.0 0.05 100.0)
+        (0.0 0.05 150.0)
+        (0.0 0.05 200.0)
+        (0.0 0.05 250.0)
+    );
+    
+    fields
+    (
+        p 
+        U
+        rho
+        alpha.particles 
+    );
+}
 // ************************************************************************* //
