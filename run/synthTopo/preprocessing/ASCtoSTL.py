@@ -270,6 +270,64 @@ def main(argv):
 
         saveDicts(xmin, xmax, ymin, ymax, Zinit, offset_mesh, path)
 
+    output_dir = '../constant/triSurface'
+    # Check whether the specified output path exists or not
+    isExist = os.path.exists(output_dir)
+
+    if not isExist:
+
+        # Create a new directory because it does not exist
+        os.makedirs(output_dir)
+        print('The new directory ' + output_dir + ' is created!')
+
+    try:
+
+        from ASCtoSTLdict import z_sample
+
+        imin = np.searchsorted(xinit, xmin, side='right')
+        imax = np.searchsorted(xinit, xmax, side='right')
+        jmin = np.searchsorted(yinit, ymin, side='right')
+        jmax = np.searchsorted(yinit, ymax, side='right')
+
+        X_sample = Xinit[imin:imax, jmin:jmax]
+        Y_sample = Yinit[imin:imax, jmin:jmax]
+        Z_sample = Zinit[imin:imax, jmin:jmax] + z_sample
+
+        num_rows, num_cols = Z_sample.shape
+
+        # Create vertices
+        vertices = np.zeros((num_rows * num_cols, 3))
+        for i in range(num_rows):
+            for j in range(num_cols):
+                vertices[i * num_cols +
+                         j] = [X_sample[i, j], Y_sample[i, j], Z_sample[i, j]]
+
+        # Create faces (triangulation)
+        faces = []
+        for i in range(num_rows - 1):
+            for j in range(num_cols - 1):
+                faces.append([
+                    i * num_cols + j, (i + 1) * num_cols + j,
+                    (i + 1) * num_cols + j + 1
+                ])
+                faces.append([
+                    i * num_cols + j, (i + 1) * num_cols + j + 1,
+                    i * num_cols + j + 1
+                ])
+
+        # Create mesh
+        surface_mesh = mesh.Mesh(np.zeros(len(faces), dtype=mesh.Mesh.dtype))
+        for i, f in enumerate(faces):
+            for j in range(3):
+                surface_mesh.vectors[i][j] = vertices[f[j]]
+
+        # Write mesh to STL file
+        surface_mesh.save('../constant/triSurface/surface_sample.stl')
+
+    except ImportError:
+
+        print('z_sample not defined: sample surface not created')
+
     try:
 
         from ASCtoSTLdict import points
@@ -845,16 +903,6 @@ def main(argv):
     for i, f in enumerate(faces):
         for j in range(3):
             surface.vectors[i][j] = vertices[f[j], :]
-
-    output_dir = '../constant/triSurface'
-    # Check whether the specified output path exists or not
-    isExist = os.path.exists(output_dir)
-
-    if not isExist:
-
-        # Create a new directory because it does not exist
-        os.makedirs(output_dir)
-        print('The new directory ' + output_dir + ' is created!')
 
     surface.save('../constant/triSurface/surface.stl')
 
