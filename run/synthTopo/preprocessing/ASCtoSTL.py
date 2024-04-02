@@ -409,6 +409,10 @@ def main(argv):
     # list of displacements
     dx = []
     dy = []
+
+    dx_total = []
+    dy_total = []
+
     dz_total = []
     dz2 = []
     dz_crater = []
@@ -473,6 +477,8 @@ def main(argv):
 
     dx.extend(0.0 * Xinit[:, 0:idx_min].ravel())
     dy.extend(0.0 * Xinit[:, 0:idx_min].ravel())
+    dx_total.extend(0.0 * Xinit[:, 0:idx_min].ravel())
+    dy_total.extend(0.0 * Xinit[:, 0:idx_min].ravel())
     dz_total.extend(0.0 * Xinit[:, 0:idx_min].ravel())
     dz2.extend(0.0 * Xinit[:, 0:idx_min].ravel())
     dz_crater.extend(0.0 * Xinit[:, 0:idx_min].ravel())
@@ -485,6 +491,8 @@ def main(argv):
 
     dx.extend(0.0 * Xinit[0:idy_min, idx_min:idx_max + 1].ravel())
     dy.extend(0.0 * Xinit[0:idy_min, idx_min:idx_max + 1].ravel())
+    dx_total.extend(0.0 * Xinit[0:idy_min, idx_min:idx_max + 1].ravel())
+    dy_total.extend(0.0 * Xinit[0:idy_min, idx_min:idx_max + 1].ravel())
     dz_total.extend(0.0 * Xinit[0:idy_min, idx_min:idx_max + 1].ravel())
     dz2.extend(0.0 * Xinit[0:idy_min, idx_min:idx_max + 1].ravel())
     dz_crater.extend(0.0 * Xinit[0:idy_min, idx_min:idx_max + 1].ravel())
@@ -497,6 +505,8 @@ def main(argv):
 
     dx.extend(0.0 * Xinit[idy_max + 1:, idx_min:idx_max + 1].ravel())
     dy.extend(0.0 * Xinit[idy_max + 1:, idx_min:idx_max + 1].ravel())
+    dx_total.extend(0.0 * Xinit[idy_max + 1:, idx_min:idx_max + 1].ravel())
+    dy_total.extend(0.0 * Xinit[idy_max + 1:, idx_min:idx_max + 1].ravel())
     dz_total.extend(0.0 * Xinit[idy_max + 1:, idx_min:idx_max + 1].ravel())
     dz2.extend(0.0 * Xinit[idy_max + 1:, idx_min:idx_max + 1].ravel())
     dz_crater.extend(0.0 * Xinit[idy_max + 1:, idx_min:idx_max + 1].ravel())
@@ -509,6 +519,8 @@ def main(argv):
 
     dx.extend(0.0 * Xinit[:, idx_max + 1:].ravel())
     dy.extend(0.0 * Xinit[:, idx_max + 1:].ravel())
+    dx_total.extend(0.0 * Xinit[:, idx_max + 1:].ravel())
+    dy_total.extend(0.0 * Xinit[:, idx_max + 1:].ravel())
     dz_total.extend(0.0 * Xinit[:, idx_max + 1:].ravel())
     dz2.extend(0.0 * Xinit[:, idx_max + 1:].ravel())
     dz_crater.extend(0.0 * Xinit[:, idx_max + 1:].ravel())
@@ -550,6 +562,8 @@ def main(argv):
 
                 dx.append(0.0)
                 dy.append(0.0)
+                dx_total.append(0.0)
+                dy_total.append(0.0)
                 dz_total.append(0.0)
                 dz2.append(0.0)
                 dz_crater.append(0.0)
@@ -670,6 +684,40 @@ def main(argv):
             print('Missing parameter in dict: conduit_buffer (float)')
             sys.exit(1)
 
+        try:
+
+            from ASCtoSTLdict import conduit_shift_x
+
+        except ImportError:
+
+            print('Missing parameter in dict: conduit_shift_x (float)')
+            sys.exit(1)
+
+        try:
+
+            from ASCtoSTLdict import conduit_shift_y
+
+        except ImportError:
+
+            print('Missing parameter in dict: conduit_shift_y (float)')
+            sys.exit(1)
+
+        try:
+
+            from ASCtoSTLdict import xbc
+
+        except ImportError:
+
+            xbc = 0.0
+
+        try:
+
+            from ASCtoSTLdict import ybc
+
+        except ImportError:
+
+            ybc = 0.0
+
         x_conduit_top = []
         y_conduit_top = []
         z_conduit_top = []
@@ -690,6 +738,8 @@ def main(argv):
 
         # distance of point (x,y) from line
         dist = line.distance(Point(x, y))
+        dist_conduit = line.distance(
+            Point(x - conduit_shift_x, y - conduit_shift_y))
 
         try:
 
@@ -711,29 +761,51 @@ def main(argv):
 
         if (dist < dist_lev):
 
+            # normalized distance for the crater
             dz_rel = -(1.0 - (np.maximum(0, dist - dist_flat) /
                               (dist0 - dist_flat))**enne)**(1.0 / enne)
 
-            if (conduit_radius > 0) and (dist <=
+            if (conduit_radius > 0) and (dist_conduit <=
                                          conduit_radius + conduit_buffer):
 
+                # normalized distance for the conduit
                 alpha_buffer = 1.0 - \
-                    np.maximum(0.0, (dist-conduit_radius)/conduit_buffer)
-                alpha_buffer = alpha_buffer**4
+                    np.maximum(
+                        0.0, (dist_conduit-conduit_radius)/conduit_buffer)
+                alpha_buffer = alpha_buffer**3
 
+                # rescaled distance for the conduit
                 conduit_dz_rel = alpha_buffer * conduit_length / depth
+
+                # normalized distance for total (when multiplied by depth it
+                # gives the absolute vertical total displacement)
                 dz_rel -= conduit_dz_rel
+
+                # contribution of pixel to conduit volume (to be multiplied
+                # by pixel area)
                 conduit_volume += depth * conduit_dz_rel
 
             else:
 
+                alpha_buffer = 0.0
                 conduit_dz_rel = 0.0
 
+            # x-displacement (considering only crater)
             dx.append(dz_rel * xb)
+            # y-displacement (considering only crater)
             dy.append(dz_rel * yb)
+            # x-displacement (considering both crater and conduit)
+            dx_total.append(dz_rel * xb - alpha_buffer * xbc)
+            # y-displacement (considering both crater and conduit)
+            dy_total.append(dz_rel * yb - alpha_buffer * ybc)
+
+            # total z-displacement (considering also the conduit when present)
             dz_total.append(depth * dz_rel)
+            # crater only z-displacement
             dz_crater.append(depth * (dz_rel + conduit_dz_rel))
 
+            # contribution of pixel to total volume (to be multiplied
+            # by pixel area)
             volume += -depth * dz_rel
 
             try:
@@ -770,16 +842,19 @@ def main(argv):
 
                 z = z_org
 
-            if (conduit_radius > 0) and (dist <=
+            if (conduit_radius > 0) and (dist_conduit <=
                                          conduit_radius + conduit_buffer):
 
-                x_conduit_top.append(x + xb)
-                y_conduit_top.append(y + yb)
+                x_conduit_top.append(x + dz_rel * xb)
+                y_conduit_top.append(y + dz_rel * yb)
                 z_conduit_top.append(
                     float(z) + depth * (dz_rel + conduit_dz_rel))
 
-                x_conduit_bottom.append(x + dz_rel * xb)
-                y_conduit_bottom.append(y + dz_rel * yb)
+                # x_conduit_bottom.append(x + dz_rel * xb)
+                # y_conduit_bottom.append(y + dz_rel * yb)
+
+                x_conduit_bottom.append(x + dz_rel * xb - alpha_buffer * xbc)
+                y_conduit_bottom.append(y + dz_rel * yb - alpha_buffer * ybc)
                 z_conduit_bottom.append(float(z) + depth * dz_rel)
 
             x_check.append(x)
@@ -793,13 +868,37 @@ def main(argv):
 
     print(f"Crater volume [m3] : {float(volume):e}")
 
+    if RBF_interpolation:
+
+        z0 = rbf([[0.0, 0.0]])
+
+    else:
+
+        z0 = f(0.0, 0.0)
+
+    z0 -= (depth + conduit_length)
+
+    print('z0 = ', z0)
+
+    # x from original surface
     x_org = np.array(x_check)
+    # y from original surface
     y_org = np.array(y_check)
+    # z from original surface
     z_org = np.array(z_check_org)
+    # z from smoothed surface
     z_smooth = np.array(z_check)
 
+    # x with crater displacement
     x_new = np.array(x_check) + np.array(dx)
+    # y with crater displacement
     y_new = np.array(y_check) + np.array(dy)
+
+    # x with total displacement
+    x_new_total = np.array(x_check) + np.array(dx_total)
+    # y with total displacement
+    y_new_total = np.array(y_check) + np.array(dy_total)
+
     z_new = np.array(z_check) + np.array(dz_total)
     z_new2 = np.array(z_check) + np.array(dz2)
     z_new_crater = np.array(z_check) + np.array(dz_crater)
@@ -882,6 +981,8 @@ def main(argv):
             z_new[i] = z_smooth[i]
             x_new[i] = x_org[i]
             y_new[i] = y_org[i]
+            x_new_total[i] = x_org[i]
+            y_new_total[i] = y_org[i]
             dz_total[i] = 0.0
 
             z_new_crater[i] = z_smooth[i]
@@ -892,6 +993,8 @@ def main(argv):
             z_new[i] = z_org[i]
             x_new[i] = x_org[i]
             y_new[i] = y_org[i]
+            x_new_total[i] = x_org[i]
+            y_new_total[i] = y_org[i]
             dz_total[i] = 0.0
 
             z_new_crater[i] = z_org[i]
@@ -920,7 +1023,7 @@ def main(argv):
         vertices_org = np.column_stack((x_org, y_org, z_org))
 
     # modified elevation 3D point refined grid
-    vertices = np.column_stack((x_new, y_new, z_new))
+    vertices = np.column_stack((x_new_total, y_new_total, z_new))
 
     # modified elevation 3D point refined grid
     vertices_crater = np.column_stack((x_new, y_new, z_new_crater))
@@ -948,6 +1051,16 @@ def main(argv):
     for i, f in enumerate(faces):
         for j in range(3):
             surface.vectors[i][j] = vertices[f[j], :]
+
+    output_dir = '../constant/triSurface'
+    # Check whether the specified output path exists or not
+    isExist = os.path.exists(output_dir)
+
+    if not isExist:
+
+        # Create a new directory because it does not exist
+        os.makedirs(output_dir)
+        print('The new directory ' + output_dir + ' is created!')
 
     surface.save('../constant/triSurface/surface_in.stl')
 
@@ -1064,6 +1177,10 @@ def main(argv):
 
             if check_edge:
 
+                x_conduit_bottom[i1] = x_conduit_top[i1]
+                x_conduit_bottom[i2] = x_conduit_top[i2]
+                y_conduit_bottom[i1] = y_conduit_top[i1]
+                y_conduit_bottom[i2] = y_conduit_top[i2]
                 z_conduit_bottom[i1] = z_conduit_top[i1]
                 z_conduit_bottom[i2] = z_conduit_top[i2]
 
