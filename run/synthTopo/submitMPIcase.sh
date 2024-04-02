@@ -1,6 +1,12 @@
 # clear previous stl surfaces and output of previous runs
-rm -rf constant/triSurface/*
+rm -rf constant/triSurface
+rm -rf constant/extendedFeatureEdgeMesh
+rm system/probes
+rm system/cuttingPlane
+
 foamCleanCase
+
+touch case.foam
 
 # create the STL surface from the ASC file
 cd preprocessing
@@ -19,8 +25,15 @@ blockMesh
 checkMesh -allTopology -allGeometry
 
 # refinement of the grid
+surfaceFeatures
 snappyHexMesh -overwrite
 checkMesh -allTopology -allGeometry
+
+# create VTKs for cells/faces with problems
+foamToVTK -cellSet underdeterminedCells -fields '(none)'
+foamToVTK -cellSet concaveCells -fields '(none)'
+foamToVTK -faceSet concaveFaces -fields '(none)'
+foamToVTK -faceSet skewFaces -fields '(none)'
 
 # assign common names to boundary faces 
 changeDictionary
@@ -29,6 +42,7 @@ changeDictionary
 topoSet -dict topoSetDict-conduit
 
 # set fvSolution and cloudProperties for initialization of atm. profile and ballistics
+cp ./system/controlDict.init ./system/controlDict
 cp ./system/fvSolution.init ./system/fvSolution
 cp ./constant/cloudProperties.init ./constant/cloudProperties
 

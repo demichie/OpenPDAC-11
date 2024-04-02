@@ -12,11 +12,11 @@ top_smooth_flag = True # smooth the top of crater volume
 
 lagrangian_layer_depth = 10.0
 
-xb = 0.0  # horizontal x-translation of the base of the fissure/conduit
-yb = 0.0  # horizontal y-translation of the base of the fissure/conduit
-
 xc = -140.0  # x of first point of fissure/x-center of cylinder (UTM)
 yc = 30.0  # y of first point of fissure/y-center of cylinder (UTM)
+
+xb = 0.0  # horizontal x-translation of the base of the fissure/conduit
+yb = 0.0  # horizontal y-translation of the base of the fissure/conduit
 
 # FOR CYLINDRICAL FISSURE
 points = [(xc, yc), (xc, yc)]
@@ -27,6 +27,12 @@ points = [(xc, yc), (xc, yc)]
 conduit_radius = 5.0
 conduit_length = 20.0
 conduit_buffer = 3.0
+conduit_shift_x = 0.0
+conduit_shift_y = 0.0
+
+xbc = 1.0
+ybc = 5.0
+
 
 saveDicts_flag = True
 z_atm = 2000

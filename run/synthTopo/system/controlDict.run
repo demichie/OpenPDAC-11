@@ -55,6 +55,7 @@ maxDeltaT       1;
 functions
 {
     #include "sampleSurface"
+    #include "cuttingPlane"
     #include "probes"
     #include "isoSurfaces"
 }

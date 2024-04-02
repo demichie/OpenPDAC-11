@@ -54,14 +54,6 @@ geometry
         name conduit;
       }
       
-      
-
-    /*refinementBox
-    {
-        type searchableBox;
-        min (-1.0 -0.7 0.0);
-        max ( 8.0  0.7 2.5);
-    }*/
 };
 
 
@@ -112,10 +104,10 @@ castellatedMeshControls
     // This is a featureEdgeMesh, read from constant/triSurface for now.
     features
     (
-        /*{
-            file "motorBike.eMesh";
-            level 6;
-        }*/
+        {
+            file "surface_in.eMesh";
+            level 5;
+        }
     );
 
 
@@ -134,12 +126,12 @@ castellatedMeshControls
         terrain_in
         {
             // Surface-wise min and max refinement level
-            level (4 4);
+            level (3 3);
         }
         terrain_out
         {
             // Surface-wise min and max refinement level
-            level (4 4);
+            level (3 3);
         }
     }
 
@@ -167,7 +159,7 @@ castellatedMeshControls
         crater
         {
             mode inside;
-            levels ((1E15 6));
+            levels ((1E15 5));
         }
         conduit
         {
@@ -207,27 +199,27 @@ snapControls
     //- Relative distance for points to be attracted by surface feature point
     //  or edge. True distance is this factor times local
     //  maximum edge length.
-    tolerance 10.0;
+    tolerance 2.0;
 
     //- Number of mesh displacement relaxation iterations.
-    nSolveIter 10;
+    nSolveIter 200;
 
     //- Maximum number of snapping relaxation iterations. Should stop
     //  before upon reaching a correct mesh.
-    nRelaxIter 5;
+    nRelaxIter 20;
 
     // Feature snapping
 
         //- Number of feature edge snapping iterations.
         //  Leave out altogether to disable.
-        nFeatureSnapIter 10;
+        nFeatureSnapIter 20;
 
         //- Detect (geometric only) features by sampling the surface
         //  (default=false).
-        implicitFeatureSnap true;
+        implicitFeatureSnap false;
 
         //- Use castellatedMeshControls::features (default = true)
-        explicitFeatureSnap false;
+        explicitFeatureSnap true;
 
         //- Detect points on multiple surfaces (only for explicitFeatureSnap)
         multiRegionFeatureSnap true;
@@ -247,12 +239,13 @@ addLayersControls
     {
         "terrain_out"
         {
-            nSurfaceLayers 3;
+            nSurfaceLayers 1;
         }
+        
         "terrain_in"
         {
-            nSurfaceLayers 2;
-        }
+            nSurfaceLayers 0;
+        }        
     }
 
     // Expansion factor for layer mesh
@@ -262,7 +255,7 @@ addLayersControls
     // is the thickness of the layer furthest away from the wall.
     // Relative to undistorted size of cell outside layer.
     // See relativeSizes parameter.
-    finalLayerThickness 0.35;
+    finalLayerThickness 0.5;
 
     // Minimum thickness of cell layer. If for any reason layer
     // cannot be above minThickness do not add layer.

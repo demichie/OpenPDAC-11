@@ -10,6 +10,51 @@ import os.path
 import pandas as pd
 
 
+def replace_string_in_line(file_name, line_number, old_string, new_string):
+    try:
+        with open(file_name, 'r') as f:
+            lines = f.readlines()
+    except FileNotFoundError:
+        print("File not found.")
+        return
+
+    if line_number < 1 or line_number > len(lines):
+        print("Invalid line number.")
+        return
+
+    lines[line_number - 1] = lines[line_number - 1].replace(
+        old_string, new_string)
+
+    try:
+        with open(file_name, 'w') as f:
+            f.writelines(lines)
+        print("String replaced successfully.")
+    except FileNotFoundError:
+        print("Error writing to file.")
+
+
+def duplicate_lines(input_file, output_file, n1, n2):
+    try:
+        with open(input_file, 'r') as f:
+            lines = f.readlines()
+    except FileNotFoundError:
+        print("Input file not found.")
+        return
+
+    if n1 < 1 or n2 > len(lines) or n1 > n2:
+        print("Invalid line numbers.")
+        return
+
+    duplicated_lines = lines[:n2] + lines[n1 - 1:n2] + lines[n2:]
+
+    try:
+        with open(output_file, 'w') as f:
+            f.writelines(duplicated_lines)
+        print("Lines duplicated successfully.")
+    except FileNotFoundError:
+        print("Error writing to output file.")
+
+
 def replace_xyz_line(input_file, output_file, points):
     with open(input_file, 'r') as infile, open(output_file, 'w') as outfile:
         for line in infile:
@@ -89,6 +134,71 @@ def saveDicts(xmin, xmax, ymin, ymax, Zinit, offset_mesh, path):
         textdata[i] = textdata[i].replace('xxxxxx', str(zmax - 10.0))
         fout.write('%s\n' % textdata[i])
     fout.close()
+
+
+def saveCuttingPlane(xbTot, ybTot):
+
+    input_file = './templates/cuttingPlane.template'
+    output_file = '../system/cuttingPlane'
+    n1 = 22
+    n2 = 32
+
+    print('xbTot,ybTot', xbTot, ybTot)
+
+    if (xbTot != 0.0) or (ybTot != 0.0):
+
+        nx = xbTot / (xbTot**2 + ybTot**2)
+        ny = ybTot / (xbTot**2 + ybTot**2)
+
+        duplicate_lines(input_file, output_file, n1, n2)
+
+        line_number = n2 + 1
+        old_string = "_xy"
+        new_string = "_1"
+        replace_string_in_line(output_file, line_number, old_string,
+                               new_string)
+
+        line_number = n2 + 8
+        old_string = "nx ny"
+        new_string = "{:.3f} {:.3f}".format(nx, ny)
+        replace_string_in_line(output_file, line_number, old_string,
+                               new_string)
+
+        duplicate_lines(input_file, output_file, n1, n2)
+
+        line_number = n2 + 1
+        old_string = "_xy"
+        new_string = "_2"
+        replace_string_in_line(output_file, line_number, old_string,
+                               new_string)
+
+        line_number = n2 + 8
+        old_string = "nx ny"
+        new_string = "{:.3f} {:.3f}".format(-ny, nx)
+        replace_string_in_line(output_file, line_number, old_string,
+                               new_string)
+
+    duplicate_lines(input_file, output_file, n1, n2)
+
+    line_number = n2 + 1
+    old_string = "_xy"
+    new_string = "_x"
+    replace_string_in_line(output_file, line_number, old_string, new_string)
+
+    line_number = n2 + 8
+    old_string = "nx ny"
+    new_string = "1 0"
+    replace_string_in_line(output_file, line_number, old_string, new_string)
+
+    line_number = n1
+    old_string = "_xy"
+    new_string = "_y"
+    replace_string_in_line(output_file, line_number, old_string, new_string)
+
+    line_number = n1 + 7
+    old_string = "nx ny"
+    new_string = "0 1"
+    replace_string_in_line(output_file, line_number, old_string, new_string)
 
 
 # Print iterations progress
@@ -189,6 +299,9 @@ def main(argv):
     except ImportError:
 
         yb = 0.0
+
+    xbTot = xb
+    ybTot = yb
 
     xinit = np.linspace(0, (cols - 1) * cell, cols) - xc
     yinit = np.linspace(0, (rows - 1) * cell, rows) - yc
@@ -718,6 +831,9 @@ def main(argv):
 
             ybc = 0.0
 
+        xbTot += xbc
+        ybTot += ybc
+
         x_conduit_top = []
         y_conduit_top = []
         z_conduit_top = []
@@ -1207,6 +1323,8 @@ def main(argv):
         print("conduit Volume = {0}".format(volume))
 
         surface.save('../constant/triSurface/surface_conduit_closed.stl')
+
+    saveCuttingPlane(xbTot, ybTot)
 
 
 if __name__ == "__main__":
