@@ -147,8 +147,8 @@ def saveCuttingPlane(xbTot, ybTot):
 
     if (xbTot != 0.0) and (ybTot != 0.0):
 
-        nx = xbTot / (xbTot**2 + ybTot**2)
-        ny = ybTot / (xbTot**2 + ybTot**2)
+        nx = xbTot / np.sqrt(xbTot**2 + ybTot**2)
+        ny = ybTot / np.sqrt(xbTot**2 + ybTot**2)
  
         print('nx,ny',nx,ny)
 
