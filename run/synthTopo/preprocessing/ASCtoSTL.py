@@ -145,12 +145,15 @@ def saveCuttingPlane(xbTot, ybTot):
 
     print('xbTot,ybTot', xbTot, ybTot)
 
-    if (xbTot != 0.0) or (ybTot != 0.0):
+    if (xbTot != 0.0) and (ybTot != 0.0):
 
         nx = xbTot / (xbTot**2 + ybTot**2)
         ny = ybTot / (xbTot**2 + ybTot**2)
+ 
+        print('nx,ny',nx,ny)
 
         duplicate_lines(input_file, output_file, n1, n2)
+        input_file = output_file
 
         line_number = n2 + 1
         old_string = "_xy"
