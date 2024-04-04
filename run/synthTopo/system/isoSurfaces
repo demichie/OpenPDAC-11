@@ -10,10 +10,11 @@ isoSurfaces
 {
     type            surfaces;
     libs            ("libsampling.so");
-    writeControl    writeTime;
+    writeControl  adjustableRunTime;
+    writeInterval 0.1;
 
     surfaceFormat   vtk;
-    writeFormat     binary;
+    writeFormat     binary; 
     fields          (alpha.particles);
 
     interpolationScheme cellPoint;
