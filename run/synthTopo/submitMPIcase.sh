@@ -78,6 +78,10 @@ mpirun -np xx foamRun -parallel
 #FOR SCALAR RUN:
 foamRun
 
+# monitoring of probe value
+foamMonitor -ascii postProcessing/probes/0/p
+
+# create symbolic links for VTKs with sorted names for Paraview
 python sortVTK.py
 
 # reconstruct alpha.particles and convert the values on terrain to VTK
