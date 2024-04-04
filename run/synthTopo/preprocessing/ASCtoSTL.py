@@ -10,7 +10,7 @@ import os.path
 import pandas as pd
 
 
-def replace_string_in_line(file_name, line_number, old_string, new_string):
+def replace_string_in_line(file_name, old_string, new_string):
     try:
         with open(file_name, 'r') as f:
             lines = f.readlines()
@@ -18,12 +18,12 @@ def replace_string_in_line(file_name, line_number, old_string, new_string):
         print("File not found.")
         return
 
-    if line_number < 1 or line_number > len(lines):
-        print("Invalid line number.")
-        return
+    line_number = 0
+    for i, line in enumerate(lines):
+        if old_string in line:
+            line_number = i
 
-    lines[line_number - 1] = lines[line_number - 1].replace(
-        old_string, new_string)
+    lines[line_number] = lines[line_number].replace(old_string, new_string)
 
     try:
         with open(file_name, 'w') as f:
@@ -33,7 +33,7 @@ def replace_string_in_line(file_name, line_number, old_string, new_string):
         print("Error writing to file.")
 
 
-def duplicate_lines(input_file, output_file, n1, n2):
+def duplicate_lines(input_file, output_file):
     try:
         with open(input_file, 'r') as f:
             lines = f.readlines()
@@ -41,11 +41,21 @@ def duplicate_lines(input_file, output_file, n1, n2):
         print("Input file not found.")
         return
 
+    n1 = 0
+    for i, line in enumerate(lines):
+        if 'Normal_xy' in line:
+            n1 = i
+
+    n2 = 0
+    for i, line in enumerate(lines):
+        if ');' in line:
+            n2 = i
+
     if n1 < 1 or n2 > len(lines) or n1 > n2:
         print("Invalid line numbers.")
         return
 
-    duplicated_lines = lines[:n2] + lines[n1 - 1:n2] + lines[n2:]
+    duplicated_lines = lines[:n2] + lines[n1:n2] + lines[n2:]
 
     try:
         with open(output_file, 'w') as f:
@@ -140,8 +150,6 @@ def saveCuttingPlane(xbTot, ybTot):
 
     input_file = './templates/cuttingPlane.template'
     output_file = '../system/cuttingPlane'
-    n1 = 22
-    n2 = 32
 
     print('xbTot,ybTot', xbTot, ybTot)
 
@@ -149,59 +157,47 @@ def saveCuttingPlane(xbTot, ybTot):
 
         nx = xbTot / np.sqrt(xbTot**2 + ybTot**2)
         ny = ybTot / np.sqrt(xbTot**2 + ybTot**2)
- 
-        print('nx,ny',nx,ny)
 
-        duplicate_lines(input_file, output_file, n1, n2)
+        print('nx,ny', nx, ny)
+
+        duplicate_lines(input_file, output_file)
         input_file = output_file
 
-        line_number = n2 + 1
         old_string = "_xy"
         new_string = "_1"
-        replace_string_in_line(output_file, line_number, old_string,
-                               new_string)
+        replace_string_in_line(output_file, old_string, new_string)
 
-        line_number = n2 + 8
         old_string = "nx ny"
         new_string = "{:.3f} {:.3f}".format(nx, ny)
-        replace_string_in_line(output_file, line_number, old_string,
-                               new_string)
+        replace_string_in_line(output_file, old_string, new_string)
 
-        duplicate_lines(input_file, output_file, n1, n2)
+        duplicate_lines(input_file, output_file)
 
-        line_number = n2 + 1
         old_string = "_xy"
         new_string = "_2"
-        replace_string_in_line(output_file, line_number, old_string,
-                               new_string)
+        replace_string_in_line(output_file, old_string, new_string)
 
-        line_number = n2 + 8
         old_string = "nx ny"
         new_string = "{:.3f} {:.3f}".format(-ny, nx)
-        replace_string_in_line(output_file, line_number, old_string,
-                               new_string)
+        replace_string_in_line(output_file, old_string, new_string)
 
-    duplicate_lines(input_file, output_file, n1, n2)
+    duplicate_lines(input_file, output_file)
 
-    line_number = n2 + 1
     old_string = "_xy"
     new_string = "_x"
-    replace_string_in_line(output_file, line_number, old_string, new_string)
+    replace_string_in_line(output_file, old_string, new_string)
 
-    line_number = n2 + 8
     old_string = "nx ny"
     new_string = "1 0"
-    replace_string_in_line(output_file, line_number, old_string, new_string)
+    replace_string_in_line(output_file, old_string, new_string)
 
-    line_number = n1
     old_string = "_xy"
     new_string = "_y"
-    replace_string_in_line(output_file, line_number, old_string, new_string)
+    replace_string_in_line(output_file, old_string, new_string)
 
-    line_number = n1 + 7
     old_string = "nx ny"
     new_string = "0 1"
-    replace_string_in_line(output_file, line_number, old_string, new_string)
+    replace_string_in_line(output_file, old_string, new_string)
 
 
 # Print iterations progress

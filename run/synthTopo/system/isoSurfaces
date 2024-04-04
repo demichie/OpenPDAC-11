@@ -17,7 +17,7 @@ isoSurfaces
     writeFormat     binary; 
     fields          (alpha.particles);
 
-    interpolationScheme cellPoint;
+    interpolationScheme cellPointFace;
 
     surfaces
     (
