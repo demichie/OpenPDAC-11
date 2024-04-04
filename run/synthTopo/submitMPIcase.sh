@@ -78,6 +78,8 @@ mpirun -np xx foamRun -parallel
 #FOR SCALAR RUN:
 foamRun
 
+python sortVTK.py
+
 # reconstruct alpha.particles and convert the values on terrain to VTK
 reconstructPar -newTimes -fields '(alpha.particles)' -lagrangianFields '(none)'
 foamToVTK -fields '(alpha.particles)' -noInternal -noFaceZones -excludePatches '(atm top)'
