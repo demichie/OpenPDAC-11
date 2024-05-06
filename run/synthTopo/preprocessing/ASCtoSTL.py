@@ -8,7 +8,7 @@ from linecache import getline
 import sys
 import os.path
 import pandas as pd
-
+from scipy.interpolate import RegularGridInterpolator as RGI
 
 def replace_string_in_line(file_name, old_string, new_string):
     try:
@@ -22,6 +22,7 @@ def replace_string_in_line(file_name, old_string, new_string):
     for i, line in enumerate(lines):
         if old_string in line:
             line_number = i
+            break
 
     lines[line_number] = lines[line_number].replace(old_string, new_string)
 
@@ -471,7 +472,8 @@ def main(argv):
     print('bb', bb)
 
     # interpolate with values from original fine grid
-    f = interpolate.interp2d(xinit, yinit, Zinit, kind='linear')
+    # f = interpolate.interp2d(xinit, yinit, Zinit, kind='linear')
+    f = RGI((xinit, yinit), Zinit.T, method='linear', bounds_error=False)
 
     try:
 
@@ -479,10 +481,16 @@ def main(argv):
         from ASCtoSTLdict import yProbes
         from ASCtoSTLdict import dzProbes
 
+        xProbes = [x-xc for x in xProbes]
+        yProbes = [y-yc for y in yProbes]
+
+        test = f([[xProbes[0], yProbes[0]]])
+        print('test',test)
+
         zProbes = []
         for x, y, dz in zip(xProbes, yProbes, dzProbes):
 
-            zProbes.append(f(x, y)[0] + dz)
+            zProbes.append(f([[x, y]]) + dz)
 
         probeTemplate = './templates/probes.template'
         probeSystem = '../system/probes'
@@ -683,7 +691,7 @@ def main(argv):
                 x_check.append(x)
                 y_check.append(y)
 
-                z = f(x, y)
+                z = f([[x, y]])
 
                 z_check.append(float(z))
                 z_check_org.append(float(z))
@@ -757,7 +765,7 @@ def main(argv):
 
     for j, (x, y) in enumerate(zip(xedge, yedge)):
 
-        zedge[j] = f(x, y)
+        zedge[j] = f(tuple([x, y]))
 
     print(zedge.shape)
     xy = np.concatenate([xedge, yedge], axis=1)
@@ -947,7 +955,7 @@ def main(argv):
 
                 RBF_interpolation = False
 
-            z_org = f(x, y)
+            z_org = f(tuple([x, y]))
 
             if RBF_interpolation:
 
