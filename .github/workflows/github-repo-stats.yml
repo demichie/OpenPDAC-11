@@ -1,4 +1,4 @@
-name: github-repo-stats-OpenPDAC11
+name: github-repo-stats
 
 on:
   schedule:
@@ -9,7 +9,7 @@ on:
 
 jobs:
   j1:
-    name: github-repo-stats-OpenPDAC11
+    name: github-repo-stats
     runs-on: ubuntu-latest
     steps:
       - name: run-ghrs
